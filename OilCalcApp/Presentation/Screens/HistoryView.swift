@@ -1,0 +1,111 @@
+import SwiftUI
+
+struct HistoryView: View {
+    @State private var history: [HistoryEntry] = []
+    @State private var showClearAlert = false
+    
+    var body: some View {
+        ZStack {
+            Color(.systemGray6).ignoresSafeArea()
+            
+            if history.isEmpty {
+                VStack(spacing: 16) {
+                    Image(systemName: "clock")
+                        .font(.system(size: 64))
+                        .foregroundStyle(.secondary)
+                    Text("history.empty".localized())
+                        .font(.title2)
+                        .foregroundStyle(.secondary)
+                }
+            } else {
+                List {
+                    ForEach(history) { entry in
+                        HistoryEntryRow(entry: entry)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                Button(role: .destructive) {
+                                    deleteEntry(entry)
+                                } label: {
+                                    Label("history.delete".localized(), systemImage: "trash")
+                                }
+                            }
+                    }
+                }
+                .listStyle(.insetGrouped)
+            }
+        }
+        .navigationTitle("history.title".localized())
+        .navigationBarTitleDisplayMode(.large)
+        .toolbar {
+            if !history.isEmpty {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("history.clearAll".localized()) {
+                        showClearAlert = true
+                    }
+                    .foregroundStyle(.red)
+                }
+            }
+        }
+        .onAppear {
+            loadHistory()
+        }
+        .alert("Очистить всю историю?", isPresented: $showClearAlert) {
+            Button("Отмена", role: .cancel) { }
+            Button("Очистить", role: .destructive) {
+                clearHistory()
+            }
+        } message: {
+            Text("Все записи будут удалены без возможности восстановления.")
+        }
+    }
+    
+    private func loadHistory() {
+        history = HistoryService.shared.loadHistory()
+    }
+    
+    private func deleteEntry(_ entry: HistoryEntry) {
+        HistoryService.shared.removeEntry(id: entry.id)
+        loadHistory()
+    }
+    
+    private func clearHistory() {
+        HistoryService.shared.clearHistory()
+        loadHistory()
+    }
+}
+
+private struct HistoryEntryRow: View {
+    let entry: HistoryEntry
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(entry.type.displayName)
+                    .font(.headline)
+                Spacer()
+                Text(entry.date, style: .relative)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            
+            if let dualResult = entry.dualResult {
+                Text("При 15°C: \(ResultFormatters.formattedVolume(dualResult.at15)) л")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text("При T: \(ResultFormatters.formattedVolume(dualResult.atT)) л")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            
+            if let tripResult = entry.tripResult {
+                Text("Δ Mass: \(ResultFormatters.formattedMass(tripResult.deltaMassKg)) kg")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text("Δ Объём (15°C): \(ResultFormatters.formattedVolume(tripResult.deltaV15)) л")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.vertical, 4)
+    }
+}
+

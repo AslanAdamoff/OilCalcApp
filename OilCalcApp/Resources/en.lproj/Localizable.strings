@@ -1,0 +1,57 @@
+/* 
+  Localizable.strings
+  OilCalcApp
+  
+  English
+*/
+
+// MainCalc
+"mainCalc.title" = "Calculator";
+"mainCalc.massToLiters" = "Mass → Liters";
+"mainCalc.litersToMass" = "Liters → Mass";
+"mainCalc.density" = "Density (kg/l)";
+"mainCalc.temperature" = "Temperature (°C)";
+"mainCalc.mass" = "Mass (kg)";
+"mainCalc.volume" = "Volume (l)";
+"mainCalc.calculate" = "Calculate";
+"density.at15" = "Density at 15°C";
+"density.atTemperature" = "Density at T°C";
+
+// TripCalc
+"tripCalc.title" = "Trip Loss";
+"tripCalc.pointA" = "Point A (Loading)";
+"tripCalc.pointB" = "Point B (Discharge)";
+"tripCalc.mass" = "Mass (kg)";
+"tripCalc.density" = "Density (kg/l)";
+"tripCalc.temperature" = "Temperature (°C)";
+"tripCalc.calculate" = "Calculate Loss";
+
+// History
+"history.title" = "History";
+"history.empty" = "History is empty";
+"history.delete" = "Delete";
+"history.clearAll" = "Clear All";
+"mainScreen.mainCalc" = "Calculator";
+"mainScreen.tripCalc" = "Loss Analysis";
+
+// Validation
+"validation.empty" = "Field \"%@\" is empty";
+"validation.notNumber" = "Field \"%@\" contains invalid number";
+"validation.outOfRange" = "Field \"%@\" must be in range %@ - %@";
+"validation.outOfRangeMin" = "Field \"%@\" must be at least %@";
+"validation.outOfRangeMax" = "Field \"%@\" must be at most %@";
+
+// Settings
+"settings.title" = "Settings";
+"settings.language" = "Language";
+// Product Type
+"productType.refined" = "Refined Products (Diesel/Gasoline)";
+"productType.crude" = "Crude Oil";
+
+// TripCalc - Specific Fields
+"tripCalc.massA" = "Mass at Point A";
+"tripCalc.densityA" = "Density at Point A";
+"tripCalc.tempA" = "Temperature at Point A";
+"tripCalc.massB" = "Mass at Point B";
+"tripCalc.densityB" = "Density at Point B";
+"tripCalc.tempB" = "Temperature at Point B";
