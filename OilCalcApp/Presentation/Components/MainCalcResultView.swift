@@ -76,6 +76,7 @@ struct MainCalcResultView: View {
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                                 
+                                // Logic relocated to helper variables
                                 let diffValue = result.difference
                                 let unit = mode == "direct" ? "l" : "kg"
                                 let formattedDiff = mode == "direct" ? ResultFormatters.formattedVolume(diffValue) : ResultFormatters.formattedMass(diffValue)
