@@ -10,7 +10,7 @@ struct TripCalcResultView: View {
                 .ignoresSafeArea()
             
             ScrollView {
-                VStack(spacing: 16) { // Reduced from 24
+                VStack(spacing: 16) {
                     Text("result.close".localized())
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -19,95 +19,66 @@ struct TripCalcResultView: View {
                     Text("tripCalc.title".localized())
                         .font(.largeTitle.bold())
                     
-                    // Точка A
-                    VStack(alignment: .leading, spacing: 8) { // Reduced from 12
-                        Text("tripCalc.pointA".localized())
-                            .font(.title2.bold())
+                    // MARK: - Total Results (Start vs End)
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Total Analysis")
+                            .font(.headline)
                         
-                        PointResultCard(point: result.A, label: "A")
+                        Divider()
+                        
+                        TripDeltaView(
+                            delta: result.totalDelta,
+                            title: "Total Difference",
+                            fromTemp: result.points.first?.temperature,
+                            toTemp: result.points.last?.temperature
+                        )
                     }
                     .padding()
                     .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
                     
-                    // Точка B
-                    VStack(alignment: .leading, spacing: 8) { // Reduced from 12
-                        Text("tripCalc.pointB".localized())
+                    // MARK: - Individual Points
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Measurement Points")
                             .font(.title2.bold())
+                            .padding(.horizontal)
                         
-                        PointResultCard(point: result.B, label: "B")
+                        ForEach(Array(result.points.enumerated()), id: \.element.id) { index, point in
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text(point.name.isEmpty ? "Point \(index + 1)" : point.name)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                
+                                PointResultCard(point: point, label: "Point \(index + 1)")
+                            }
+                            .padding()
+                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                        }
                     }
-                    .padding()
-                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
                     
-                    // Losses
-                    VStack(alignment: .leading, spacing: 12) { // Reduced from 16
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Transport Loss Analysis")
-                                .font(.headline)
-                            Text("🔴 Red = Loss (B < A) | 🟢 Green = Gain (B > A)")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        
-                        VStack(spacing: 8) { // Reduced from 12
-                            // Δ Масса
-                            HStack {
-                                Text("result.deltaMass".localized())
-                                    .font(.headline)
-                                Spacer()
-                                VStack(alignment: .trailing) {
-                                    Text(ResultFormatters.formattedMass(result.deltaMassKg) + " kg")
-                                        .font(.title3.bold())
-                                        .foregroundStyle(result.deltaMassKg >= 0 ? .green : .red)
-                                        .monospacedDigit()
-                                    Text(ResultFormatters.formattedPercent(result.deltaMassPercent) + "%")
-                                        .font(.caption)
-                                        .foregroundStyle(result.deltaMassPercent >= 0 ? .green : .red)
-                                        .monospacedDigit()
+                    // MARK: - Segment Analysis
+                    if !result.segments.isEmpty {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Segment Analysis")
+                                .font(.title2.bold())
+                                .padding(.horizontal)
+                            
+                            ForEach(Array(result.segments.enumerated()), id: \.element.id) { index, segment in
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text("Segment \(index + 1): \(segment.fromPoint.id == result.points.first?.id ? "Start" : "P\(index + 1)") → \(segment.toPoint.id == result.points.last?.id ? "End" : "P\(index + 2)")")
+                                        .font(.headline)
+                                    
+                                    TripDeltaView(
+                                        delta: segment.delta,
+                                        title: "Difference",
+                                        fromTemp: segment.fromPoint.temperature,
+                                        toTemp: segment.toPoint.temperature
+                                    )
                                 }
-                            }
-                            
-                            Divider()
-                            
-                            // Δ Объём при 15°C
-                            HStack {
-                                Text("result.deltaVolume".localized() + " (15°C)")
-                                    .font(.headline)
-                                Spacer()
-                                VStack(alignment: .trailing) {
-                                    Text(ResultFormatters.formattedVolume(result.deltaV15) + " l")
-                                        .font(.title3.bold())
-                                        .foregroundStyle(result.deltaV15 >= 0 ? .green : .red)
-                                        .monospacedDigit()
-                                    Text(ResultFormatters.formattedPercent(result.deltaV15Percent) + "%")
-                                        .font(.caption)
-                                        .foregroundStyle(result.deltaV15Percent >= 0 ? .green : .red)
-                                        .monospacedDigit()
-                                }
-                            }
-                            
-                            Divider()
-                            
-                            // Δ Объём при фактической T
-                            HStack {
-                                Text("result.deltaVolume".localized() + " (Fact. T)")
-                                    .font(.headline)
-                                Spacer()
-                                VStack(alignment: .trailing) {
-                                    Text(ResultFormatters.formattedVolume(result.deltaVFact) + " l")
-                                        .font(.title3.bold())
-                                        .foregroundStyle(result.deltaVFact >= 0 ? .green : .red)
-                                        .monospacedDigit()
-                                    Text(ResultFormatters.formattedPercent(result.deltaVFactPercent) + "%")
-                                        .font(.caption)
-                                        .foregroundStyle(result.deltaVFactPercent >= 0 ? .green : .red)
-                                        .monospacedDigit()
-                                }
+                                .padding()
+                                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
                             }
                         }
                     }
-                    .padding()
-                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
                 }
                 .padding()
                 .frame(maxWidth: .infinity)
@@ -115,6 +86,84 @@ struct TripCalcResultView: View {
         }
         .onTapGesture(count: 2) {
             onClose()
+        }
+    }
+}
+
+// Helper view for displaying Deltas
+struct TripDeltaView: View {
+    let delta: TripDelta
+    let title: String
+    var fromTemp: Double? = nil
+    var toTemp: Double? = nil
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            // Δ Mass
+            HStack {
+                Text("result.deltaMass".localized())
+                    .font(.subheadline)
+                Spacer()
+                
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    Text(ResultFormatters.formattedMass(delta.massKg) + " kg")
+                        .font(.title3.bold())
+                        .foregroundStyle(delta.massKg >= 0 ? .green : .red)
+                        .monospacedDigit()
+                    
+                    Text("(" + ResultFormatters.formattedPercent(delta.massPercent) + "%)")
+                        .font(.body) // Slightly larger than caption but smaller than value
+                        .foregroundStyle(delta.massPercent >= 0 ? .green : .red)
+                        .monospacedDigit()
+                }
+            }
+            
+            Divider()
+            
+            // Δ Volume 15°C
+            HStack {
+                Text("result.deltaVolume".localized() + " (15°C)")
+                    .font(.subheadline)
+                Spacer()
+                
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    Text(ResultFormatters.formattedVolume(delta.v15) + " l")
+                        .font(.title3.bold())
+                        .foregroundStyle(delta.v15 >= 0 ? .green : .red)
+                        .monospacedDigit()
+                    
+                    Text("(" + ResultFormatters.formattedPercent(delta.v15Percent) + "%)")
+                        .font(.body)
+                        .foregroundStyle(delta.v15Percent >= 0 ? .green : .red)
+                        .monospacedDigit()
+                }
+            }
+            
+            Divider()
+            
+            // Δ Volume Fact
+            HStack {
+                if let t1 = fromTemp, let t2 = toTemp {
+                    Text("Δ V (@ \(ResultFormatters.formattedTemperature(t1))°C → \(ResultFormatters.formattedTemperature(t2))°C)")
+                        .font(.subheadline)
+                } else {
+                    Text("result.deltaVolume".localized() + " (Fact. T)")
+                        .font(.subheadline)
+                }
+                Spacer()
+                
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    Text(ResultFormatters.formattedVolume(delta.vFact) + " l")
+                        .font(.title3.bold())
+                        .foregroundStyle(delta.vFact >= 0 ? .green : .red)
+                        .monospacedDigit()
+                    
+                    Text("(" + ResultFormatters.formattedPercent(delta.vFactPercent) + "%)")
+                        .font(.body)
+                        .foregroundStyle(delta.vFactPercent >= 0 ? .green : .red)
+                        .monospacedDigit()
+                }
+            }
         }
     }
 }
@@ -144,7 +193,7 @@ private struct PointResultCard: View {
             
             // Плотность при фактической T
             HStack {
-                Text("ρT:")
+                Text("ρ (@ \(ResultFormatters.formattedTemperature(point.temperature))°C):")
                     .foregroundStyle(.secondary)
                 Spacer()
                 Text(ResultFormatters.formattedDensity(point.densityT) + " kg/l")
@@ -176,7 +225,7 @@ private struct PointResultCard: View {
             
             // Объём при фактической T
             HStack {
-                Text("result.volume".localized() + " (Fact. T):")
+                Text("result.volume".localized() + " (@ \(ResultFormatters.formattedTemperature(point.temperature))°C):")
                     .foregroundStyle(.secondary)
                 Spacer()
                 Text(ResultFormatters.formattedVolume(point.vFactLiters) + " l")

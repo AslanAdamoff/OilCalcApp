@@ -24,9 +24,51 @@ public enum DensityMode: String, Codable, CaseIterable {
     }
 }
 
+/// Модель данных для одной точки маршрута (ввод пользователя)
+public struct TripPoint: Identifiable, Codable {
+    public var id: UUID
+    public var name: String
+    public var mass: String        // String для байндинга с TextField
+    public var density: String     // String для байндинга с TextField
+    public var temperature: String // String для байндинга с TextField
+    public var densityMode: DensityMode
+    
+    public init(
+        id: UUID = UUID(),
+        name: String = "",
+        mass: String = "",
+        density: String = "",
+        temperature: String = "",
+        densityMode: DensityMode = .at15
+    ) {
+        self.id = id
+        self.name = name
+        self.mass = mass
+        self.density = density
+        self.temperature = temperature
+        self.densityMode = densityMode
+    }
+}
+
+/// Шаблон маршрута
+public struct TripTemplate: Identifiable, Codable {
+    public var id: UUID
+    public var name: String
+    public var points: [TripPoint]
+    public var productType: ProductType
+    
+    public init(id: UUID = UUID(), name: String, points: [TripPoint], productType: ProductType) {
+        self.id = id
+        self.name = name
+        self.points = points
+        self.productType = productType
+    }
+}
+
 /// Результат расчёта для одной точки (A или B)
 public struct PointResult: Codable, Identifiable {
     public let id: UUID
+    public let name: String // Added name property
     
     /// Масса фактическая (кг)
     public let massKg: Double
@@ -48,6 +90,7 @@ public struct PointResult: Codable, Identifiable {
     
     public init(
         id: UUID = UUID(),
+        name: String = "",
         massKg: Double,
         density15: Double,
         densityT: Double,
@@ -56,6 +99,7 @@ public struct PointResult: Codable, Identifiable {
         vFactLiters: Double
     ) {
         self.id = id
+        self.name = name
         self.massKg = massKg
         self.density15 = density15
         self.densityT = densityT
@@ -65,57 +109,105 @@ public struct PointResult: Codable, Identifiable {
     }
     
     private enum CodingKeys: String, CodingKey {
-        case id, massKg, density15, densityT, temperature, v15Liters, vFactLiters
+        case id, name, massKg, density15, densityT, temperature, v15Liters, vFactLiters
     }
 }
 
-/// Результат расчёта потерь при транспортировке A → B
+
+
+/// Результат сравнения (дельта) между двумя точками
+public struct TripDelta: Codable {
+    /// Разница массы (кг)
+    public let massKg: Double
+    /// Разница массы в процентах
+    public let massPercent: Double
+    
+    /// Разница объёма при 15°C (л)
+    public let v15: Double
+    /// Разница объёма при 15°C в процентах
+    public let v15Percent: Double
+    
+    /// Разница объёма при факт. температуре (л)
+    public let vFact: Double
+    /// Разница объёма при факт. температуре в процентах
+    public let vFactPercent: Double
+    
+    public init(from: PointResult, to: PointResult) {
+        self.massKg = to.massKg - from.massKg
+        self.massPercent = from.massKg != 0 ? (self.massKg / from.massKg) * 100 : 0
+        
+        self.v15 = to.v15Liters - from.v15Liters
+        self.v15Percent = from.v15Liters != 0 ? (self.v15 / from.v15Liters) * 100 : 0
+        
+        self.vFact = to.vFactLiters - from.vFactLiters
+        self.vFactPercent = from.vFactLiters != 0 ? (self.vFact / from.vFactLiters) * 100 : 0
+    }
+}
+
+/// Сегмент маршрута (между двумя соседними точками)
+public struct TripSegment: Identifiable, Codable {
+    public let id: UUID
+    public let fromPoint: PointResult
+    public let toPoint: PointResult
+    public let delta: TripDelta
+    
+    public init(from: PointResult, to: PointResult) {
+        self.id = UUID()
+        self.fromPoint = from
+        self.toPoint = to
+        self.delta = TripDelta(from: from, to: to)
+    }
+}
+
+/// Результат расчёта потерь для всего маршрута
 public struct TripResult: Codable, Identifiable {
     public let id: UUID
-    public let A: PointResult
-    public let B: PointResult
     
-    /// Разница массы (кг) = B - A
-    public var deltaMassKg: Double {
-        B.massKg - A.massKg
-    }
+    /// Рассчитанные результаты для всех точек
+    public let points: [PointResult]
     
-    /// Разница массы в процентах
-    public var deltaMassPercent: Double {
-        guard A.massKg != 0 else { return 0 }
-        return (deltaMassKg / A.massKg) * 100
-    }
+    /// Дельта для всего маршрута (Первая точка -> Последняя точка)
+    public let totalDelta: TripDelta
     
-    /// Разница объёма при 15°C (л) = B - A
-    public var deltaV15: Double {
-        B.v15Liters - A.v15Liters
-    }
+    /// Детализация по сегментам (1->2, 2->3, и т.д.)
+    public let segments: [TripSegment]
     
-    /// Разница объёма при фактической температуре (л) = B - A
-    public var deltaVFact: Double {
-        B.vFactLiters - A.vFactLiters
-    }
+    /// Совместимость со старым кодом (A - первая точка, B - последняя точка)
+    public var A: PointResult { points.first! }
+    public var B: PointResult { points.last! }
     
-    /// Разница объёма при 15°C в процентах
-    public var deltaV15Percent: Double {
-        guard A.v15Liters != 0 else { return 0 }
-        return (deltaV15 / A.v15Liters) * 100
-    }
+    // Совместимость свойств для TripResultView (читают из totalDelta)
+    public var deltaMassKg: Double { totalDelta.massKg }
+    public var deltaMassPercent: Double { totalDelta.massPercent }
+    public var deltaV15: Double { totalDelta.v15 }
+    public var deltaV15Percent: Double { totalDelta.v15Percent }
+    public var deltaVFact: Double { totalDelta.vFact }
+    public var deltaVFactPercent: Double { totalDelta.vFactPercent }
     
-    /// Разница объёма при фактической температуре в процентах
-    public var deltaVFactPercent: Double {
-        guard A.vFactLiters != 0 else { return 0 }
-        return (deltaVFact / A.vFactLiters) * 100
-    }
-    
-    public init(id: UUID = UUID(), A: PointResult, B: PointResult) {
+    public init(id: UUID = UUID(), points: [PointResult]) {
         self.id = id
-        self.A = A
-        self.B = B
+        self.points = points
+        
+        guard let first = points.first, let last = points.last, points.count >= 2 else {
+            // Fallback для пустых или одиночных точек (не должно случаться при корректной валидации)
+            self.totalDelta = TripDelta(from: PointResult(massKg: 0, density15: 0, densityT: 0, temperature: 0, v15Liters: 0, vFactLiters: 0), to: PointResult(massKg: 0, density15: 0, densityT: 0, temperature: 0, v15Liters: 0, vFactLiters: 0))
+            self.segments = []
+            return
+        }
+        
+        self.totalDelta = TripDelta(from: first, to: last)
+        
+        var parsedSegments: [TripSegment] = []
+        for i in 0..<(points.count - 1) {
+            let segment = TripSegment(from: points[i], to: points[i+1])
+            parsedSegments.append(segment)
+        }
+        self.segments = parsedSegments
     }
     
-    private enum CodingKeys: String, CodingKey {
-        case id, A, B
+    // Legacy init support (для совместимости с тестами и старым кодом, если где-то остался)
+    public init(id: UUID = UUID(), A: PointResult, B: PointResult) {
+        self.init(id: id, points: [A, B])
     }
 }
 

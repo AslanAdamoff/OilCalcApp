@@ -59,9 +59,10 @@ class LanguageService: ObservableObject {
         "validation.outOfRangeMin": "Field \"%@\" must be at least %@",
         "validation.outOfRangeMax": "Field \"%@\" must be at most %@",
         
-        // Settings
         "settings.title": "Settings",
         "settings.language": "Language",
+        "settings.about": "About App",
+        "settings.share": "Share App",
         
         // Product Type
         "productType.refined": "Refined Products",

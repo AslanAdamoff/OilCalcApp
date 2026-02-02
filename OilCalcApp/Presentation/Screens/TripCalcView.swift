@@ -3,27 +3,63 @@ import SwiftUI
 struct TripCalcView: View {
     
     @StateObject private var viewModel = TripCalcViewModel()
-    @FocusState private var focusedField: Field?
-    
-    enum Field {
-        case massA, densityA, temperatureA
-        case massB, densityB, temperatureB
-    }
+    // Focused field handled internally by TripPointCard, global dismissal used here
+    @State private var showSaveTemplateAlert = false
+    @State private var alertInput = ""
     
     var body: some View {
         ZStack {
             DesignSystem.Colors.background.ignoresSafeArea()
             
             ScrollView {
-                VStack(alignment: .leading, spacing: 8) { // Reduced from 12
+                VStack(alignment: .leading, spacing: 16) {
+                    // Header Area
+                    HStack {
+                        Text("tripCalc.title".localized())
+                            .font(DesignSystem.Fonts.title())
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
+                        
+                        Spacer()
+                        
+                        // Templates Menu
+                        Menu {
+                            Button(action: {
+                                alertInput = ""
+                                showSaveTemplateAlert = true
+                            }) {
+                                Label("Save Template", systemImage: "square.and.arrow.down")
+                            }
+                            
+                            Menu("Load / Manage") {
+                                if viewModel.savedTemplates.isEmpty {
+                                    Text("No saved templates")
+                                } else {
+                                    ForEach(viewModel.savedTemplates) { template in
+                                        Menu(template.name) {
+                                            Button("Load") {
+                                                viewModel.loadTemplate(template)
+                                            }
+                                            Button("Delete", role: .destructive) {
+                                                viewModel.deleteTemplate(template)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            Button(role: .destructive, action: { viewModel.resetToDefault() }) {
+                                Label("Reset All", systemImage: "trash")
+                            }
+                        } label: {
+                            Image(systemName: "list.bullet.rectangle.portrait")
+                                .font(.title2)
+                                .foregroundColor(DesignSystem.Colors.accent)
+                        }
+                    }
+                    .padding(.horizontal, 4)
                     
-                    Text("tripCalc.title".localized())
-                        .font(DesignSystem.Fonts.title())
-                        .foregroundColor(DesignSystem.Colors.textPrimary)
-                        .padding(.bottom, -2)
-                    
-                    // Тип продукта (Card)
-                    DesignSystem.CardView(padding: 10, spacing: 6) { // Compact card
+                    // Product Selection
+                    DesignSystem.CardView(padding: 10, spacing: 6) {
                         Picker("", selection: $viewModel.productType) {
                             ForEach(ProductType.allCases, id: \.self) { type in
                                 Text(type.displayName).tag(type)
@@ -32,104 +68,36 @@ struct TripCalcView: View {
                         .pickerStyle(.segmented)
                     }
                     
-                    // Точка A (Card)
-                    DesignSystem.CardView(padding: 10, spacing: 6) { // Compact card
-                        Text("tripCalc.pointA".localized())
-                            .font(DesignSystem.Fonts.header())
-                            .foregroundColor(DesignSystem.Colors.textPrimary)
-                            .padding(.bottom, 0)
-                        
-                        // Режим плотности
-                        Picker("", selection: $viewModel.densityModeA) {
-                            Text(DensityMode.at15.displayName).tag(DensityMode.at15)
-                            Text(DensityMode.atTemperature.displayName).tag(DensityMode.atTemperature)
-                        }
-                        .pickerStyle(.segmented)
-                        .padding(.bottom, 2)
-                        
-                        // Масса
-                        VStack(alignment: .leading, spacing: 2) { // Tight spacing
-                            Label("tripCalc.mass".localized(), systemImage: "scalemass")
-                                .font(DesignSystem.Fonts.label())
-                                .foregroundColor(DesignSystem.Colors.textSecondary)
-                            TextField("1000.0", text: $viewModel.massA)
-                                .textFieldStyle(.roundedBorder)
-                                .keyboardType(.decimalPad)
-                                .focused($focusedField, equals: .massA)
-                        }
-                        
-                        // Плотность
-                        VStack(alignment: .leading, spacing: 2) {
-                            Label("tripCalc.density".localized(), systemImage: "flask")
-                                .font(DesignSystem.Fonts.label())
-                                .foregroundColor(DesignSystem.Colors.textSecondary)
-                            TextField("0.850", text: $viewModel.densityA)
-                                .textFieldStyle(.roundedBorder)
-                                .keyboardType(.decimalPad)
-                                .focused($focusedField, equals: .densityA)
-                        }
-                        
-                        // Температура
-                        VStack(alignment: .leading, spacing: 2) {
-                            Label("tripCalc.temperature".localized(), systemImage: "thermometer")
-                                .font(DesignSystem.Fonts.label())
-                                .foregroundColor(DesignSystem.Colors.textSecondary)
-                            TextField("20.0", text: $viewModel.temperatureA)
-                                .textFieldStyle(.roundedBorder)
-                                .keyboardType(.decimalPad)
-                                .focused($focusedField, equals: .temperatureA)
+                    // Dynamic Points List
+                    VStack(spacing: 12) {
+                        ForEach($viewModel.points) { $point in
+                            TripPointCard(
+                                point: $point,
+                                onDelete: {
+                                    if let index = viewModel.points.firstIndex(where: { $0.id == point.id }) {
+                                        viewModel.removePoint(at: IndexSet(integer: index))
+                                    }
+                                },
+                                canDelete: viewModel.points.count > 2
+                            )
                         }
                     }
                     
-                    // Точка B (Card)
-                    DesignSystem.CardView(padding: 10, spacing: 6) { // Compact card
-                        Text("tripCalc.pointB".localized())
+                    // Add Point Button
+                    Button(action: { viewModel.addPoint() }) {
+                        Label("Add Point", systemImage: "plus.circle.fill")
                             .font(DesignSystem.Fonts.header())
-                            .foregroundColor(DesignSystem.Colors.textPrimary)
-                            .padding(.bottom, 0)
-                        
-                        // Режим плотности
-                        Picker("", selection: $viewModel.densityModeB) {
-                            Text(DensityMode.at15.displayName).tag(DensityMode.at15)
-                            Text(DensityMode.atTemperature.displayName).tag(DensityMode.atTemperature)
-                        }
-                        .pickerStyle(.segmented)
-                        .padding(.bottom, 2)
-                        
-                        // Масса
-                        VStack(alignment: .leading, spacing: 2) { // Tight spacing
-                            Label("tripCalc.mass".localized(), systemImage: "scalemass")
-                                .font(DesignSystem.Fonts.label())
-                                .foregroundColor(DesignSystem.Colors.textSecondary)
-                            TextField("1000.0", text: $viewModel.massB)
-                                .textFieldStyle(.roundedBorder)
-                                .keyboardType(.decimalPad)
-                                .focused($focusedField, equals: .massB)
-                        }
-                        
-                        // Плотность
-                        VStack(alignment: .leading, spacing: 2) {
-                            Label("tripCalc.density".localized(), systemImage: "flask")
-                                .font(DesignSystem.Fonts.label())
-                                .foregroundColor(DesignSystem.Colors.textSecondary)
-                            TextField("0.840", text: $viewModel.densityB)
-                                .textFieldStyle(.roundedBorder)
-                                .keyboardType(.decimalPad)
-                                .focused($focusedField, equals: .densityB)
-                        }
-                        
-                        // Температура
-                        VStack(alignment: .leading, spacing: 2) {
-                            Label("tripCalc.temperature".localized(), systemImage: "thermometer")
-                                .font(DesignSystem.Fonts.label())
-                                .foregroundColor(DesignSystem.Colors.textSecondary)
-                            TextField("20.0", text: $viewModel.temperatureB)
-                                .textFieldStyle(.roundedBorder)
-                                .keyboardType(.decimalPad)
-                                .focused($focusedField, equals: .temperatureB)
-                        }
+                            .foregroundColor(DesignSystem.Colors.accent)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 8)
                     }
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(DesignSystem.Colors.accent.opacity(0.5), lineWidth: 1)
+                            .background(Color.clear)
+                    )
                     
+                    // Calculate Button
                     Button("tripCalc.calculate".localized()) {
                         viewModel.calculate()
                     }
@@ -137,16 +105,25 @@ struct TripCalcView: View {
                     .tint(DesignSystem.Colors.accent)
                     .frame(maxWidth: .infinity)
                     .controlSize(.large)
+                    .padding(.top, 8)
+                    
+                    // Spacer to ensure content can be scrolled up when keyboard is active
+                    Color.clear.frame(height: 200)
                 }
-                .padding(12)
+                .padding(16)
                 .frame(maxWidth: .infinity)
             }
+        }
+
+        .onTapGesture {
+            // Dismiss keyboard when tapping on background
+            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
         }
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()
                 Button("Done") {
-                    focusedField = nil
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                 }
             }
         }
@@ -162,6 +139,17 @@ struct TripCalcView: View {
             if let errorMessage = viewModel.errorMessage {
                 Text(errorMessage)
             }
+        }
+        .alert("Save Template", isPresented: $showSaveTemplateAlert) {
+            TextField("Template Name", text: $alertInput)
+            Button("Cancel", role: .cancel) { }
+            Button("Save") {
+                if !alertInput.isEmpty {
+                    viewModel.saveTemplate(name: alertInput)
+                }
+            }
+        } message: {
+            Text("Enter a name for this route template")
         }
     }
 }
