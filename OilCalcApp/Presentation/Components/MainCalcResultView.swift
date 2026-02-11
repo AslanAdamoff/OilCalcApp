@@ -35,36 +35,36 @@ struct MainCalcResultView: View {
                             
                             // 2. Densities
                             if let d15 = result.density15, let dT = result.densityT {
-                                ResultRow(title: "Density at 15°C", value: ResultFormatters.formattedDensity(d15), color: .primary)
-                                ResultRow(title: "Density at \(ResultFormatters.formattedTemperature(temperature))°C", value: ResultFormatters.formattedDensity(dT), color: .primary)
+                                ResultRow(title: "result.densityAt15".localized(), value: ResultFormatters.formattedDensity(d15), color: .primary)
+                                ResultRow(title: "result.densityAtT".localized(ResultFormatters.formattedTemperature(temperature)), value: ResultFormatters.formattedDensity(dT), color: .primary)
                             }
 
                             Divider()
                             
                             // 3. Volume (Result)
-                            ResultRow(title: "Volume at 15°C", value: ResultFormatters.formattedVolume(result.at15) + " l", color: .blue)
-                            ResultRow(title: "Volume at \(ResultFormatters.formattedTemperature(temperature))°C", value: ResultFormatters.formattedVolume(result.atT) + " l", color: .blue)
+                            ResultRow(title: "result.volumeAt15".localized(), value: ResultFormatters.formattedVolume(result.at15) + " l", color: .blue)
+                            ResultRow(title: "result.volumeAtT".localized(ResultFormatters.formattedTemperature(temperature)), value: ResultFormatters.formattedVolume(result.atT) + " l", color: .blue)
                             
                         } else {
                             // MARK: - Reverse Mode: Liters -> Mass
                             // User Request: Volume (Input) -> Density -> Mass (Result)
                             
                             // 1. Volume (Input)
-                            ResultRow(title: "Volume (Input)", value: ResultFormatters.formattedVolume(inputValue) + " l", color: .primary)
+                            ResultRow(title: "result.volumeInput".localized(), value: ResultFormatters.formattedVolume(inputValue) + " l", color: .primary)
                             
                             Divider()
                             
                             // 2. Densities
                             if let d15 = result.density15, let dT = result.densityT {
-                                ResultRow(title: "Density at 15°C", value: ResultFormatters.formattedDensity(d15), color: .primary)
-                                ResultRow(title: "Density at \(ResultFormatters.formattedTemperature(temperature))°C", value: ResultFormatters.formattedDensity(dT), color: .primary)
+                                ResultRow(title: "result.densityAt15".localized(), value: ResultFormatters.formattedDensity(d15), color: .primary)
+                                ResultRow(title: "result.densityAtT".localized(ResultFormatters.formattedTemperature(temperature)), value: ResultFormatters.formattedDensity(dT), color: .primary)
                             }
                             
                             Divider()
                             
                             // 3. Mass (Result)
-                            ResultRow(title: "Mass (at 15°C)", value: ResultFormatters.formattedMass(result.at15) + " kg", color: .blue)
-                            ResultRow(title: "Mass (at T°C)", value: ResultFormatters.formattedMass(result.atT) + " kg", color: .blue)
+                            ResultRow(title: "result.massAt15".localized(), value: ResultFormatters.formattedMass(result.at15) + " kg", color: .blue)
+                            ResultRow(title: "result.massAtT".localized(), value: ResultFormatters.formattedMass(result.atT) + " kg", color: .blue)
                         }
                         
                         Divider()

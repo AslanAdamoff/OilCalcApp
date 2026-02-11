@@ -27,19 +27,19 @@ struct TripCalcView: View {
                                 alertInput = ""
                                 showSaveTemplateAlert = true
                             }) {
-                                Label("Save Template", systemImage: "square.and.arrow.down")
+                                Label("tripCalc.saveTemplate".localized(), systemImage: "square.and.arrow.down")
                             }
                             
-                            Menu("Load / Manage") {
+                            Menu("tripCalc.loadManage".localized()) {
                                 if viewModel.savedTemplates.isEmpty {
-                                    Text("No saved templates")
+                                    Text("tripCalc.noTemplates".localized())
                                 } else {
                                     ForEach(viewModel.savedTemplates) { template in
                                         Menu(template.name) {
-                                            Button("Load") {
+                                            Button("tripCalc.load".localized()) {
                                                 viewModel.loadTemplate(template)
                                             }
-                                            Button("Delete", role: .destructive) {
+                                            Button("common.delete".localized(), role: .destructive) {
                                                 viewModel.deleteTemplate(template)
                                             }
                                         }
@@ -48,7 +48,7 @@ struct TripCalcView: View {
                             }
                             
                             Button(role: .destructive, action: { viewModel.resetToDefault() }) {
-                                Label("Reset All", systemImage: "trash")
+                                Label("tripCalc.resetAll".localized(), systemImage: "trash")
                             }
                         } label: {
                             Image(systemName: "list.bullet.rectangle.portrait")
@@ -85,7 +85,7 @@ struct TripCalcView: View {
                     
                     // Add Point Button
                     Button(action: { viewModel.addPoint() }) {
-                        Label("Add Point", systemImage: "plus.circle.fill")
+                        Label("tripCalc.addPoint".localized(), systemImage: "plus.circle.fill")
                             .font(DesignSystem.Fonts.header())
                             .foregroundColor(DesignSystem.Colors.accent)
                             .frame(maxWidth: .infinity)
@@ -122,7 +122,7 @@ struct TripCalcView: View {
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()
-                Button("Done") {
+                Button("common.done".localized()) {
                     UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                 }
             }
@@ -133,23 +133,23 @@ struct TripCalcView: View {
                 onClose: { viewModel.result = nil }
             )
         }
-        .alert("Error", isPresented: $viewModel.showError) {
-            Button("OK", role: .cancel) { }
+        .alert("common.error".localized(), isPresented: $viewModel.showError) {
+            Button("common.ok".localized(), role: .cancel) { }
         } message: {
             if let errorMessage = viewModel.errorMessage {
                 Text(errorMessage)
             }
         }
-        .alert("Save Template", isPresented: $showSaveTemplateAlert) {
-            TextField("Template Name", text: $alertInput)
-            Button("Cancel", role: .cancel) { }
-            Button("Save") {
+        .alert("tripCalc.saveTemplate".localized(), isPresented: $showSaveTemplateAlert) {
+            TextField("tripCalc.templateName".localized(), text: $alertInput)
+            Button("common.cancel".localized(), role: .cancel) { }
+            Button("common.save".localized()) {
                 if !alertInput.isEmpty {
                     viewModel.saveTemplate(name: alertInput)
                 }
             }
         } message: {
-            Text("Enter a name for this route template")
+            Text("tripCalc.saveTemplateName".localized())
         }
     }
 }

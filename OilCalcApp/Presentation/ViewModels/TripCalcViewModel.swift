@@ -58,7 +58,7 @@ class TripCalcViewModel: ObservableObject {
         
         // Ensure at least 2 points
         guard points.count >= 2 else {
-            errorMessage = "Calculation requires at least 2 points"
+            errorMessage = "tripCalc.minPoints".localized()
             showError = true
             triggerErrorHaptic()
             return

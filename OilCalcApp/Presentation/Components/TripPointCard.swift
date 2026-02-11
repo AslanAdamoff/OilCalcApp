@@ -15,7 +15,7 @@ struct TripPointCard: View {
         DesignSystem.CardView(padding: 10, spacing: 6) {
             // Header: Name and Delete Button
             HStack {
-                TextField("Location Name", text: $point.name)
+                TextField("tripCalc.locationName".localized(), text: $point.name)
                     .font(DesignSystem.Fonts.header())
                     .foregroundColor(DesignSystem.Colors.textPrimary)
                     .focused($focusedField, equals: .name)
@@ -49,9 +49,6 @@ struct TripPointCard: View {
                     .textFieldStyle(.roundedBorder)
                     .keyboardType(.decimalPad)
                     .focused($focusedField, equals: .mass)
-//                    .onChange(of: point.mass) { newValue in
-//                        if newValue.contains(",") { point.mass = newValue.replacingOccurrences(of: ",", with: ".") }
-//                    }
                     .onChange(of: point.mass) { _, newValue in
                         if newValue.contains(",") { point.mass = newValue.replacingOccurrences(of: ",", with: ".") }
                     }
@@ -67,9 +64,6 @@ struct TripPointCard: View {
                     .textFieldStyle(.roundedBorder)
                     .keyboardType(.decimalPad)
                     .focused($focusedField, equals: .density)
-//                    .onChange(of: point.density) { newValue in
-//                        if newValue.contains(",") { point.density = newValue.replacingOccurrences(of: ",", with: ".") }
-//                    }
                     .onChange(of: point.density) { _, newValue in
                         if newValue.contains(",") { point.density = newValue.replacingOccurrences(of: ",", with: ".") }
                     }
@@ -85,9 +79,6 @@ struct TripPointCard: View {
                     .textFieldStyle(.roundedBorder)
                     .keyboardType(.decimalPad)
                     .focused($focusedField, equals: .temperature)
-//                    .onChange(of: point.temperature) { newValue in
-//                        if newValue.contains(",") { point.temperature = newValue.replacingOccurrences(of: ",", with: ".") }
-//                    }
                     .onChange(of: point.temperature) { _, newValue in
                         if newValue.contains(",") { point.temperature = newValue.replacingOccurrences(of: ",", with: ".") }
                     }

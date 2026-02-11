@@ -21,14 +21,14 @@ struct TripCalcResultView: View {
                     
                     // MARK: - Total Results (Start vs End)
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Total Analysis")
+                        Text("result.totalAnalysis".localized())
                             .font(.headline)
                         
                         Divider()
                         
                         TripDeltaView(
                             delta: result.totalDelta,
-                            title: "Total Difference",
+                            title: "result.totalDifference".localized(),
                             fromTemp: result.points.first?.temperature,
                             toTemp: result.points.last?.temperature
                         )
@@ -38,17 +38,17 @@ struct TripCalcResultView: View {
                     
                     // MARK: - Individual Points
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Measurement Points")
+                        Text("result.measurementPoints".localized())
                             .font(.title2.bold())
                             .padding(.horizontal)
                         
                         ForEach(Array(result.points.enumerated()), id: \.element.id) { index, point in
                             VStack(alignment: .leading, spacing: 8) {
-                                Text(point.name.isEmpty ? "Point \(index + 1)" : point.name)
+                                Text(point.name.isEmpty ? "result.point".localized() + " \(index + 1)" : point.name)
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                                 
-                                PointResultCard(point: point, label: "Point \(index + 1)")
+                                PointResultCard(point: point, label: "result.point".localized() + " \(index + 1)")
                             }
                             .padding()
                             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
@@ -58,7 +58,7 @@ struct TripCalcResultView: View {
                     // MARK: - Segment Analysis
                     if !result.segments.isEmpty {
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("Segment Analysis")
+                            Text("result.segmentAnalysis".localized())
                                 .font(.title2.bold())
                                 .padding(.horizontal)
                             
@@ -69,7 +69,7 @@ struct TripCalcResultView: View {
                                     
                                     TripDeltaView(
                                         delta: segment.delta,
-                                        title: "Difference",
+                                        title: "result.difference".localized(),
                                         fromTemp: segment.fromPoint.temperature,
                                         toTemp: segment.toPoint.temperature
                                     )

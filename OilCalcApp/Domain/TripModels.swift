@@ -172,9 +172,11 @@ public struct TripResult: Codable, Identifiable {
     /// Детализация по сегментам (1->2, 2->3, и т.д.)
     public let segments: [TripSegment]
     
-    /// Совместимость со старым кодом (A - первая точка, B - последняя точка)
-    public var A: PointResult { points.first! }
-    public var B: PointResult { points.last! }
+    /// Compatibility with legacy code (A = first point, B = last point)
+    /// Uses safe defaults instead of force-unwrap to prevent crashes
+    private static let emptyPoint = PointResult(massKg: 0, density15: 0, densityT: 0, temperature: 0, v15Liters: 0, vFactLiters: 0)
+    public var A: PointResult { points.first ?? Self.emptyPoint }
+    public var B: PointResult { points.last ?? Self.emptyPoint }
     
     // Совместимость свойств для TripResultView (читают из totalDelta)
     public var deltaMassKg: Double { totalDelta.massKg }

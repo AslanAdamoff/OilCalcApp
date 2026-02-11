@@ -113,7 +113,7 @@ struct MainCalcView: View {
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()
-                Button("Done") {
+                Button("common.done".localized()) {
                     focusedField = nil
                 }
             }
@@ -129,8 +129,8 @@ struct MainCalcView: View {
                 onClose: { viewModel.result = nil }
             )
         }
-        .alert("Ошибка", isPresented: $viewModel.showError) {
-            Button("OK", role: .cancel) { }
+        .alert("common.error".localized(), isPresented: $viewModel.showError) {
+            Button("common.ok".localized(), role: .cancel) { }
         } message: {
             if let errorMessage = viewModel.errorMessage {
                 Text(errorMessage)

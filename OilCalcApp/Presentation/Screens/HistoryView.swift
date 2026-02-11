@@ -53,13 +53,13 @@ struct HistoryView: View {
         .onAppear {
             loadHistory()
         }
-        .alert("Очистить всю историю?", isPresented: $showClearAlert) {
-            Button("Отмена", role: .cancel) { }
-            Button("Очистить", role: .destructive) {
+        .alert("history.clearConfirmTitle".localized(), isPresented: $showClearAlert) {
+            Button("common.cancel".localized(), role: .cancel) { }
+            Button("common.clear".localized(), role: .destructive) {
                 clearHistory()
             }
         } message: {
-            Text("Все записи будут удалены без возможности восстановления.")
+            Text("history.clearConfirmMessage".localized())
         }
         .sheet(item: $selectedEntry) { entry in
             if let result = entry.tripResult {
@@ -76,12 +76,12 @@ struct HistoryView: View {
                 // But looking at previous messages, MainCalcResultView was used as a half-sheet.
                 // Let's just show Text for now or reuse existing row logic expanded.
                 VStack {
-                    Text("Basic Calculator Result")
+                    Text("history.basicCalcResult".localized())
                         .font(.headline)
                         .padding()
                     HistoryEntryRow(entry: entry)
                         .padding()
-                    Button("Close") { selectedEntry = nil }
+                    Button("common.close".localized()) { selectedEntry = nil }
                 }
                 .presentationDetents([.medium])
             }
@@ -118,19 +118,19 @@ private struct HistoryEntryRow: View {
             }
             
             if let dualResult = entry.dualResult {
-                Text("При 15°C: \(ResultFormatters.formattedVolume(dualResult.at15)) л")
+                Text("history.at15".localized() + ": " + ResultFormatters.formattedVolume(dualResult.at15) + " l")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                Text("При T: \(ResultFormatters.formattedVolume(dualResult.atT)) л")
+                Text("history.atT".localized() + ": " + ResultFormatters.formattedVolume(dualResult.atT) + " l")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
             
             if let tripResult = entry.tripResult {
-                Text("Δ Mass: \(ResultFormatters.formattedMass(tripResult.deltaMassKg)) kg")
+                Text("Δ Mass: " + ResultFormatters.formattedMass(tripResult.deltaMassKg) + " kg")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                Text("Δ Объём (15°C): \(ResultFormatters.formattedVolume(tripResult.deltaV15)) л")
+                Text("Δ Volume (15°C): " + ResultFormatters.formattedVolume(tripResult.deltaV15) + " l")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

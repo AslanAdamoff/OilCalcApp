@@ -43,12 +43,27 @@ class LanguageService: ObservableObject {
         "tripCalc.density": "Density (kg/l)",
         "tripCalc.temperature": "Temperature (°C)",
         "tripCalc.calculate": "Calculate Loss",
+        "tripCalc.saveTemplate": "Save Template",
+        "tripCalc.loadManage": "Load / Manage",
+        "tripCalc.noTemplates": "No saved templates",
+        "tripCalc.resetAll": "Reset All",
+        "tripCalc.addPoint": "Add Point",
+        "tripCalc.locationName": "Location Name",
+        "tripCalc.saveTemplateName": "Enter a name for this route template",
+        "tripCalc.templateName": "Template Name",
+        "tripCalc.load": "Load",
+        "tripCalc.minPoints": "Calculation requires at least 2 points",
         
         // History
         "history.title": "History",
         "history.empty": "History is empty",
         "history.delete": "Delete",
         "history.clearAll": "Clear All",
+        "history.clearConfirmTitle": "Clear all history?",
+        "history.clearConfirmMessage": "All records will be deleted permanently.",
+        "history.basicCalcResult": "Calculator Result",
+        "history.at15": "At 15°C",
+        "history.atT": "At T",
         "mainScreen.mainCalc": "Calculator",
         "mainScreen.tripCalc": "Loss Analysis",
         
@@ -67,6 +82,33 @@ class LanguageService: ObservableObject {
         // Product Type
         "productType.refined": "Refined Products",
         "productType.crude": "Crude Oil",
+        
+        // Common
+        "common.error": "Error",
+        "common.ok": "OK",
+        "common.cancel": "Cancel",
+        "common.close": "Close",
+        "common.done": "Done",
+        "common.save": "Save",
+        "common.delete": "Delete",
+        "common.clear": "Clear",
+        
+        // Result View - MainCalc
+        "result.densityAt15": "Density at 15°C",
+        "result.densityAtT": "Density at %@°C",
+        "result.volumeAt15": "Volume at 15°C",
+        "result.volumeAtT": "Volume at %@°C",
+        "result.volumeInput": "Volume (Input)",
+        "result.massAt15": "Mass (at 15°C)",
+        "result.massAtT": "Mass (at T°C)",
+        
+        // Result View - TripCalc
+        "result.totalAnalysis": "Total Analysis",
+        "result.totalDifference": "Total Difference",
+        "result.measurementPoints": "Measurement Points",
+        "result.segmentAnalysis": "Segment Analysis",
+        "result.segment": "Segment",
+        "result.point": "Point",
         
         // TripCalc - Specific Fields
         "tripCalc.massA": "Mass at Point A",
